@@ -1,0 +1,100 @@
+/* Color palette */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 500;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+}
+
+.button-header {
+    margin: 0 40px;
+}
+
+.button-footer {
+    width: 100px;
+    height: 50px;
+    border: none;
+
+    font-size: 25px;
+    background-color: lightgray;
+}
+
+.activeButton {
+    background-color: darkgray;
+}
+
+.game-field {
+    display: flex;
+    flex-wrap: wrap;
+
+    /* width: 450px;
+    height: 450px; */
+    margin: 15px 0;
+    border: 3px solid darkgray;
+    background-color: lightgray;
+}
+
+.tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* width: 30px;
+    height: 30px; */
+    border: 1.5px solid #f5f5f5;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.tile-clicked {
+    background-color: #a9a9a9;
+}
+
+/* Number settings */
+
+.number-1 {
+    color: #0000FF;
+}
+
+.number-2 {
+    color: #0c840c;
+}
+
+.number-3 {
+    color: #FF0000;
+}
+
+.number-4 {
+    color: #000080;
+}
+
+.number-5 {
+    color: #a52a2a;
+}
+
+.number-6 {
+    color: #008080;
+}
+
+.number-7 {
+    color: #000000;
+}
+
+.number-8 {
+    color: #808080;
+}

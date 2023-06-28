@@ -1,0 +1,15 @@
+{
+  "name": "minesweeper",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx parcel src/index.html",
+    "build": "parcel build"
+  },
+  "author": "Aleś Kiryluškin",
+  "devDependencies": {
+    "eslint": "^8.43.0",
+    "parcel": "^2.9.2"
+  }
+}

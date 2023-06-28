@@ -1,0 +1,20 @@
+# Ignore the node_modules directory
+node_modules/
+
+# Parcel cache
+.parcel-cache/
+
+# Ignore Logs
+logs
+*.log
+
+# Ignore system files
+.vscode
+.vs
+
+# Ignore the build directory
+/dist
+
+# Optional npm cache directory
+.npm
+package-lock.json
