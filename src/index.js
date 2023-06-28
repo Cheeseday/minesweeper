@@ -1,21 +1,23 @@
 const easy = {
+    name: 'easy',
     minesCount: 10,
-    tileSize: 45,
-    fieldSize: [10,10],
+    fieldSize: '10x10',
 }
-
 const medium = {
-    tileSize: 40,
-    fieldSize: [15,15],
+    name: 'medium',
+    minesCount: 40,
+    fieldSize: '15x15',
 }
-
 const hard = {
-    tileSize: 30,
-    fieldSize: [25,25],
+    name: 'hard',
+    minesCount: 99,
+    fieldSize: '25x25',
 }
 
-let rows = hard.fieldSize[0]; //default value
-let columns = hard.fieldSize[1]; //default value
+const tileSize = 35;
+
+let rows;
+let columns;
 
 let board = [];
 let minesLocation = [];
@@ -40,8 +42,7 @@ fill="#000000" stroke="#FFFFFF" stroke-width="0">
 -152 c0 -18 -6 -26 -23 -28 -24 -4 -38 18 -28 44 3 9 15 14 28 12 17 -2 23
 -10 23 -28z"/>
 </g>
-</svg>`;
-
+</svg>`;  //carry on another module
 
 const body = document.body;
 
@@ -58,7 +59,6 @@ const counterLabel = document.createElement('span');
 counterLabel.textContent = 'Mines: ';
 const mineCounter = document.createElement('span');
 mineCounter.classList.add('mine-counter');
-mineCounter.textContent = 10; /////////////////////////////////////////////////////
 mineCounterWrapper.insertAdjacentElement('beforeend', counterLabel);
 mineCounterWrapper.insertAdjacentElement('beforeend', mineCounter);
 //Button for start new game
@@ -75,6 +75,49 @@ const gameField = document.createElement('div');
 gameField.className = 'game-field';
 // gameField.style.width = `${easy.tileSize * easy.fieldSize[0]+ 6}px`;
 
+//Radio for choose field size
+const radioWrapper = document.createElement('div');
+const radioFormLabel = document.createElement('p');
+radioFormLabel.className = 'radio-form-label';
+radioFormLabel.textContent = 'Choose field size: ';
+const radioForm = document.createElement('form');
+radioForm.id = 'radioForm';
+
+let [input, label] = createRadioElement(easy, 'field-size');
+radioForm.insertAdjacentElement('beforeend', input);
+radioForm.insertAdjacentElement('beforeend', label);
+[input, label] = createRadioElement(medium, 'field-size');
+radioForm.insertAdjacentElement('beforeend', input);
+radioForm.insertAdjacentElement('beforeend', label);
+[input, label] = createRadioElement(hard, 'field-size');
+radioForm.insertAdjacentElement('beforeend', input);
+radioForm.insertAdjacentElement('beforeend', label);
+
+radioWrapper.insertAdjacentElement('afterbegin', radioForm);
+radioWrapper.insertAdjacentElement('afterbegin', radioFormLabel);
+
+//Mines counter
+const numberOfMinesWrapper = document.createElement('div');
+const inputMines = document.createElement('input');
+inputMines.type = 'number';
+inputMines.name = 'number-of-mines';
+inputMines.value = 10;
+inputMines.min = 10;
+inputMines.max = 99;
+inputMines.id = 'number-of-mines';
+
+const labelMines = document.createElement('label');
+labelMines.for = `${inputMines.id}`;
+labelMines.textContent = 'Enter the number of mines*: ';
+
+const minesButton = document.createElement('button');
+minesButton.classList.add(...['button', 'mines-button']);
+minesButton.textContent = 'Restart';
+
+numberOfMinesWrapper.insertAdjacentElement('afterbegin', minesButton);
+numberOfMinesWrapper.insertAdjacentElement('afterbegin', inputMines);
+numberOfMinesWrapper.insertAdjacentElement('afterbegin', labelMines);
+
 //Button choose flag 
 const flagButtonWrapper = document.createElement('div');
 flagButtonWrapper.className = 'flag-wrapper';
@@ -83,35 +126,54 @@ flagButton.classList.add(...['button', 'button-footer']);
 flagButton.textContent = flagIcon;
 flagButtonWrapper.insertAdjacentElement('afterbegin', flagButton);
 
-body.insertAdjacentElement('afterbegin', header);
+//remark
+const remark = document.createElement('p');
+remark.className = 'remark';
+remark.textContent = '* - the number of mines should be changed from 10 to 99';
+
+body.insertAdjacentElement('beforeend', header);
+body.insertAdjacentElement('beforeend', radioWrapper);
+body.insertAdjacentElement('beforeend', numberOfMinesWrapper);
 body.insertAdjacentElement('beforeend', flagButtonWrapper);
+body.insertAdjacentElement('beforeend', remark);
 
 
 window.onload = function() {
-    displayField(hard);
-    // console.log(rows, columns);
-    insertTiles(hard);
+    startGame();
 }
 
-function displayField(object) {
-    gameField.style.width = `${object.tileSize * object.fieldSize[0] + 6}px`;
-    header.insertAdjacentElement('afterend', gameField);
-    rows = object.fieldSize[0];
-    columns = object.fieldSize[1];
+function startGame() {
+    let tilesOnAbscissaAxis;
+    let tilesOnOrdinateAxis;
+    if(localStorage.getItem('fieldSize')) {
+        [tilesOnAbscissaAxis, tilesOnOrdinateAxis] = localStorage.getItem('fieldSize').split('x');
+    } else {
+        tilesOnAbscissaAxis = 10; 
+        tilesOnOrdinateAxis = 10; 
+    }
+    displayField(tilesOnAbscissaAxis, tilesOnOrdinateAxis);
+    insertTiles(tilesOnAbscissaAxis, tilesOnOrdinateAxis);
 }
 
-function insertTiles(object) {
+function displayField(xTiles, yTiles) {
+    gameField.style.width = `${tileSize * xTiles + 6}px`;
+    flagButtonWrapper.insertAdjacentElement('beforebegin', gameField);
+    rows = xTiles;
+    columns = yTiles;
+}
+
+function insertTiles(xTiles, yTiles) {
     flagButton.addEventListener('click', setFlag);
     setMines();
 
-    for(let i = 0; i < object.fieldSize[0]; i++) {
+    for(let i = 0; i < xTiles; i++) {
         let row = [];
-        for(let j = 0; j < object.fieldSize[1]; j++){
+        for(let j = 0; j < yTiles; j++){
             const tile = document.createElement('div');
             tile.classList.add(...['tile']); 
             tile.id = `${i.toString()}-${j.toString()}`; 
-            tile.style.width = `${object.tileSize}px`;
-            tile.style.height = `${object.tileSize}px`;
+            // tile.style.width = `${object.tileSize}px`;
+            // tile.style.height = `${object.tileSize}px`;
             tile.addEventListener('click', clickTile);
             gameField.insertAdjacentElement('beforeend', tile);
             row.push(tile);
@@ -119,10 +181,17 @@ function insertTiles(object) {
         board.push(row);
     }
 }
-console.log(board);
 
 function setMines() {
-    let minesLeft = mineCounter.textContent;
+    let minesLeft;
+    const mines = localStorage.getItem('countOfMines');
+    if(mines) {
+        minesLeft = mines;
+        mineCounter.textContent = mines;
+    } else {
+        minesLeft = 10;
+        mineCounter.textContent = 10;
+    }
     while(minesLeft > 0) {
         let r = Math.floor(Math.random() * rows);
         let c = Math.floor(Math.random() * columns);
@@ -248,3 +317,64 @@ function checkTile(coordX, coordY) {
     }
     return 0;
 }
+
+function newGame() {
+    resetGameToZero();
+    changeMinesCount();
+    startGame();
+}
+
+function resetGameToZero() {
+    board = [];
+    minesLocation = [];
+    tilesClicked = 0;
+
+    flagEnabled = false;
+    gameOver = false;
+
+    gameField.replaceChildren();
+}
+
+function createRadioElement(object, name) {
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.name = name;
+    let [tilesInWidth, tilesInHeight] = object.fieldSize.split('x');
+    input.value = `${tilesInWidth}x${tilesInHeight}`;
+    input.id = object.name;
+
+    const label = document.createElement('label');
+    label.for = `${input.id}`;
+    label.textContent = input.value;
+    return [input, label];
+}
+
+function changeMinesCount() {
+    if(inputMines.value > 99) {
+        localStorage.setItem('countOfMines', 99);
+        inputMines.value = 99;
+    } else if (inputMines.value < 10) {
+        localStorage.setItem('countOfMines', 10);
+        inputMines.value = 10;
+    } else {
+        localStorage.setItem('countOfMines', inputMines.value);
+    }
+}
+
+//Event listeners
+buttonNewGame.addEventListener('click', newGame);
+
+minesButton.addEventListener('click', () => {
+    changeMinesCount();
+    newGame();
+});
+
+radioForm.addEventListener('click', (event) => {
+    if(event.target.value === '10x10') {
+        localStorage.setItem('fieldSize', event.target.value);
+    } else if(event.target.value === '15x15') {
+        localStorage.setItem('fieldSize', event.target.value);
+    } else if(event.target.value === '25x25') {
+        localStorage.setItem('fieldSize', event.target.value);
+    }
+});

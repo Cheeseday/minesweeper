@@ -53,11 +53,11 @@ body {
     justify-content: center;
     align-items: center;
 
-    /* width: 30px;
-    height: 30px; */
+    width: 35px;
+    height: 35px;
     border: 1.5px solid #f5f5f5;
 
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
 }
 
@@ -97,4 +97,16 @@ body {
 
 .number-8 {
     color: #808080;
+}
+
+#radioForm {
+    display: inline-block;
+}
+
+.radio-form-label {
+    display: inline-block;
+}
+
+.mines-button {
+    margin-left: 10px;
 }
