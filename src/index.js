@@ -14,7 +14,7 @@ const hard = {
     fieldSize: '25x25',
 }
 
-const tileSize = 35;
+// const tileSize = 35;
 
 let rows;
 let columns;
@@ -77,20 +77,22 @@ gameField.className = 'game-field';
 
 //Radio for choose field size
 const radioWrapper = document.createElement('div');
+radioWrapper.className = 'radio-wrapper';
 const radioFormLabel = document.createElement('p');
 radioFormLabel.className = 'radio-form-label';
 radioFormLabel.textContent = 'Choose field size: ';
 const radioForm = document.createElement('form');
 radioForm.id = 'radioForm';
+radioForm.className = 'container'
 
 let [input, label] = createRadioElement(easy, 'field-size');
-radioForm.insertAdjacentElement('beforeend', input);
+label.insertAdjacentElement('afterbegin', input);
 radioForm.insertAdjacentElement('beforeend', label);
 [input, label] = createRadioElement(medium, 'field-size');
-radioForm.insertAdjacentElement('beforeend', input);
+label.insertAdjacentElement('afterbegin', input);
 radioForm.insertAdjacentElement('beforeend', label);
 [input, label] = createRadioElement(hard, 'field-size');
-radioForm.insertAdjacentElement('beforeend', input);
+label.insertAdjacentElement('afterbegin', input);
 radioForm.insertAdjacentElement('beforeend', label);
 
 radioWrapper.insertAdjacentElement('afterbegin', radioForm);
@@ -126,15 +128,22 @@ flagButton.classList.add(...['button', 'button-footer']);
 flagButton.textContent = flagIcon;
 flagButtonWrapper.insertAdjacentElement('afterbegin', flagButton);
 
+//Change color palette version
+const root = document.querySelector(':root');
+const themeButton = document.createElement('button');
+themeButton.classList.add('theme-button');
+themeButton.textContent = 'Change theme';
+
 //remark
 const remark = document.createElement('p');
 remark.className = 'remark';
-remark.textContent = '* - the number of mines should be changed from 10 to 99';
+remark.textContent = '* the number of mines should be changed from 10 to 99';
 
 body.insertAdjacentElement('beforeend', header);
 body.insertAdjacentElement('beforeend', radioWrapper);
 body.insertAdjacentElement('beforeend', numberOfMinesWrapper);
 body.insertAdjacentElement('beforeend', flagButtonWrapper);
+body.insertAdjacentElement('beforeend', themeButton);
 body.insertAdjacentElement('beforeend', remark);
 
 
@@ -145,24 +154,81 @@ window.onload = function() {
 function startGame() {
     let tilesOnAbscissaAxis;
     let tilesOnOrdinateAxis;
+    const tileSize = defineTileSize();
     if(localStorage.getItem('fieldSize')) {
         [tilesOnAbscissaAxis, tilesOnOrdinateAxis] = localStorage.getItem('fieldSize').split('x');
     } else {
         tilesOnAbscissaAxis = 10; 
         tilesOnOrdinateAxis = 10; 
     }
-    displayField(tilesOnAbscissaAxis, tilesOnOrdinateAxis);
-    insertTiles(tilesOnAbscissaAxis, tilesOnOrdinateAxis);
+    displayField(tilesOnAbscissaAxis, tilesOnOrdinateAxis, tileSize);
+    insertTiles(tilesOnAbscissaAxis, tilesOnOrdinateAxis, tileSize);
+    chooseColorTheme();
 }
 
-function displayField(xTiles, yTiles) {
-    gameField.style.width = `${tileSize * xTiles + 6}px`;
+function chooseColorTheme() {
+    let theme = localStorage.getItem('theme');
+    if(!theme || theme === 'light') {
+        root.classList.add('light');
+        localStorage.setItem('theme', 'light');
+    } else if(theme === 'dark') {
+        root.classList.add('dark');
+    }
+}
+
+function changeColorTheme() {
+    const theme = localStorage.getItem('theme');
+    if(!theme || theme === 'light') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+    } else if(theme === 'dark') {
+        root.classList.add('light');
+        root.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+    }
+    console.log(localStorage.getItem('theme'));
+    console.log(root);
+}
+
+function defineTileSize() {
+    const screenWidth = document.documentElement.clientWidth;
+    let tileSize;
+    if(screenWidth < 500) {
+        tileSize = 15;
+    } else if(screenWidth <= 767) {
+        tileSize = 19;
+    } else if(screenWidth <= 1079) {
+        tileSize = 30;
+    } else if(screenWidth > 1079) {
+        tileSize = 40;
+    } else {
+        tileSize = 25;
+    }
+    return tileSize;
+}
+
+function displayField(xTiles, yTiles, tileSize) {
+    // const tileSize = defineTileSize(); 
+    // const tiles = document.querySelectorAll('.tile');
+    // console.log(tiles);
+    //check tile size
+    // if(window.clientWidth < 600)
+    // if(document.documentElement.clientWidth < 600) {
+    //     if(localStorage.getItem('fieldSize') === '10x10') {   //TODO: create function for change tile size and field size by several params
+    //         gameField.style.width = `${18 * xTiles + 6}px`;
+    //     } else {
+    //         gameField.style.width = `${15 * xTiles + 6}px`;
+    //     }
+    // } else {
+    gameField.style.width = `${tileSize * xTiles + 5.2}px`;
+    // }
     flagButtonWrapper.insertAdjacentElement('beforebegin', gameField);
     rows = xTiles;
     columns = yTiles;
 }
 
-function insertTiles(xTiles, yTiles) {
+function insertTiles(xTiles, yTiles, tileSize) {
     flagButton.addEventListener('click', setFlag);
     setMines();
 
@@ -170,10 +236,10 @@ function insertTiles(xTiles, yTiles) {
         let row = [];
         for(let j = 0; j < yTiles; j++){
             const tile = document.createElement('div');
-            tile.classList.add(...['tile']); 
+            tile.classList.add(...['tile', 'hard-tile']); 
             tile.id = `${i.toString()}-${j.toString()}`; 
-            // tile.style.width = `${object.tileSize}px`;
-            // tile.style.height = `${object.tileSize}px`;
+            tile.style.width = `${tileSize}px`;
+            tile.style.height = `${tileSize}px`;
             tile.addEventListener('click', clickTile);
             gameField.insertAdjacentElement('beforeend', tile);
             row.push(tile);
@@ -207,10 +273,10 @@ function setMines() {
 function setFlag() {
     if(flagEnabled) {
         flagEnabled = false;
-        flagButton.classList.remove('activeButton');
+        flagButton.classList.remove('active-button');
     } else {
         flagEnabled = true;
-        flagButton.classList.add('activeButton');
+        flagButton.classList.add('active-button');
     }
 }
 
@@ -378,3 +444,5 @@ radioForm.addEventListener('click', (event) => {
         localStorage.setItem('fieldSize', event.target.value);
     }
 });
+
+themeButton.addEventListener('click', changeColorTheme);
