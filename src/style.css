@@ -2,18 +2,18 @@
 /* Light color palette version */
 .light {
     --base: #FFFFFF;
-    --main-color: #d3d3d3;
-    --submain-color: #a9a9a9;
-    --tile-border: #f5f5f5;
+    --antipod: #000000;
+    --main-color: #D3D3D3;
+    --submain-color: #A9A9A9;
+    --tile-border: #F5F5F5;
     --body-color: #fbfbfb;
-    --button-color: #fbfbfb;
-    --text-color: #01685d;
+    --button-color: #FBFBFB;
+    --text-color: #01685D;
     --button-text-color: #262626;
-    --active-color: #02ab9a;
+    --active-color: #02AB9A;
     /* colors that changed for tiles number */
     --one-color: #0000FF;
     --four-color: #000080;
-    --seven-color: #000000;
     /* border colors */
     --border-right-color: #555555;
     --border-bottom-color: #474747;
@@ -21,17 +21,17 @@
 /* Dark color palette version */
 .dark {
     --base: #000000;
+    --antipod: #FFFFFF;
     --main-color: #262525; /* TODO: choose optimal color combination */
     --submain-color: #181616;
     --tile-border: #706767;
-    --body-color: #3a3535;
-    --text-color: #f2f2f2;
+    --body-color: #3A3535;
+    --text-color: #F2F2F2;
     --button-color: #383838;
-    --active-color: #01685d;
+    --active-color: #01685D;
     /* colors that changed for tiles number */
-    --one-color: #0055ff;
-    --four-color: #00bbff;
-    --seven-color: #ffffff;
+    --one-color: #0055FF;
+    --four-color: #00BBFF;
     /* border colors */
     --border-right-color: #111111;
     --border-bottom-color: #000000;
@@ -49,7 +49,9 @@ body {
     display: grid;
     margin-top: 16px;
 
+    font-size: 16px;
     font-weight: 500;
+
     background-color: var(--body-color);
     place-content: center;
 }
@@ -68,6 +70,7 @@ button {
     background-color: var(--active-color);
     text-transform: uppercase;
     letter-spacing: 1px;
+    cursor: pointer;
 
     -webkit-transition: all 0.5s ease-in-out;
     -moz-transition: all 0.5s ease-in-out;
@@ -75,7 +78,8 @@ button {
 }
 
 button:hover, 
-button:active {
+button:active, 
+.button-footer:active {
     border: 1.3px solid var(--active-color);
 
     color: var(--active-color);
@@ -100,7 +104,7 @@ button:active {
     width: 100px;
     height: 30px;
 
-    font-size: 18px;
+    /* font-size: ; */
 }
 
 .flag-wrapper {
@@ -112,7 +116,11 @@ button:active {
 }
 
 .active-button {
-    background-color: var(--submain-color);
+    border: 1.3px solid var(--active-color);
+
+    color: var(--active-color);
+
+    background-color: var(--base);
 }
 
 .theme-button {
@@ -124,7 +132,7 @@ button:active {
     display: flex;
     flex-wrap: wrap;
 
-    margin: 15px 0;
+    margin: 15px auto;
     border: 3px solid var(--active-color);
     border-radius: 1px;
 
@@ -138,26 +146,50 @@ button:active {
 
     /* width: 35px; */
     /* height: 35px; */
-    border: 6px solid var(--tile-border);
+    border: 0.18em solid var(--tile-border);
     border-right-color: var(--border-right-color);
     border-bottom-color: var(--border-bottom-color);
 
-    font-size: 26px;
+    /* font-size: 2.6em; */
     font-weight: 700;
+
+    -webkit-transition: all 0.4s ease-out;
+    -moz-transition: all 0.4s ease-out;
+    transition: all 0.4s ease-out;
 }
 
 .tile:hover {
-    background-color: color-mix(in srgb, var(--seven-color) 25%, var(--base));
-    transition: all 0.3s ease-out;
+    border-color: color-mix(in srgb, var(--antipod) 9%, var(--tile-border));
+    border-right-color: color-mix(in srgb, var(--antipod) 15%, var(--border-right-color));
+    border-bottom-color: color-mix(in srgb, var(--antipod) 20%, var(--border-bottom-color));
+
+    background-color: color-mix(in srgb, var(--antipod) 35%, var(--base));
+
+    -webkit-transition: all 0.4s ease-out;
+    -moz-transition: all 0.4s ease-out;
+    transition: all 0.4s ease-out;
+
+    cursor: pointer;
+}
+
+.tile-flagged:hover {
+    border-color: var(--tile-border);
+    border-right-color: var(--border-right-color);
+    border-bottom-color: var(--border-bottom-color);
+
+    background: none;
 }
 
 .tile-clicked {
     background-color: var(--submain-color);
-    border: 1.5px solid var(--tile-border);
+    border: 0.05em solid var(--tile-border);
+
+    pointer-events: none;
 }
 
 .remark {
     margin: 0 auto;
+
     font-size: 13px;
 }
 
@@ -167,7 +199,7 @@ button:active {
 }
 
 .number-2 {
-    color: #0c840c;
+    color: #0C840C;
 }
 
 .number-3 {
@@ -179,7 +211,7 @@ button:active {
 }
 
 .number-5 {
-    color: #a52a2a;
+    color: #A52A2A;
 }
 
 .number-6 {
@@ -187,11 +219,11 @@ button:active {
 }
 
 .number-7 {
-    color: var(--seven-color);
+    color: var(--antipod);
 }
 
 .number-8 {
-    color: #5b5b5b;
+    color: #5B5B5B;
 }
 
 .radio-wrapper {
@@ -202,109 +234,154 @@ input:focus {
     border: none;
     outline: none;
 }
-/* 
-@media screen and (max-width: 500px) {
-    .tile {
-        width: 18px;
-        height: 18px;
-
-        font-size: 13px;
-    }
-}  
-*/
 
 #number-of-mines {
-    margin-left: 5px;
-
-    font-size: 17px;
-    font-weight: 500;
-    border: none;
     width: 45px;
+    border: none;
+
+    font-size: inherit;
+    font-weight: 500;
+    color: var(--text-color);
+    background-color: transparent;
 }
 
 .container {
-    --s: 1em;     /* control the size */
-    --g: 10px;    /* the gap */
-    --c: #009688; /* the active color */
+    --size: 1em;     /* control the size */
+    --gap: 10px;    /* the gap */
+    --color: #009688; /* the active color */
     
+    position: relative;
     display: grid;
     grid-auto-rows: 1fr;
-    gap: var(--g);
-    position: relative;
+    gap: var(--gap);
 }
 
 .container:before {
-    content:"";
+    content: "";
     position: absolute;
-    height: calc(var(--s)/2);
-    left: calc(var(--s)/4 + var(--_x,0px));
-    top: calc(var(--s)/4);
-    background: var(--c);
+
+    height: calc(var(--size)/2);
+    left: calc(var(--size)/4 + var(--_x,0px));
+    top: calc(var(--size)/4);
     border-radius: 50%;
+
+    background: var(--color);
+
+    transition: 0.4s, left cubic-bezier(.1,-2000,.7,-2000) 0.4s;
+
     aspect-ratio: 1;
-    transition: 0.4s,left cubic-bezier(.1,-2000,.7,-2000) .4s;
-  }
-  label {
+}
+
+.input-size-label {
     display: inline-flex;
-    line-height: var(--s);
     align-items: center;
     gap: 10px;
+
+    width: 90px;
+
+    line-height: var(--size);
     cursor: pointer;
-  } 
-  .container input {
-    height: var(--s);
-    aspect-ratio: 1;
-    border: calc(var(--s)/8) solid var(--_c,#939393);
+}
+
+.container input {
+    height: var(--size);
+    margin: 0;
+    border: calc(var(--size) / 8) solid var(--_c,#939393);
     border-radius: 50%;
-    outline-offset: calc(var(--s)/10);
-    padding: calc(var(--s)/8);
+    padding: calc(var(--size) / 8);
+
+    font-size: inherit;
+    outline-offset: calc(var(--size) / 10);
+    transition: 0.3s;
+
+    aspect-ratio: 1;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     cursor: pointer;
-    font-size: inherit;
-    margin: 0;
-    transition: .3s;
-  }
-  input:checked {
-    --_c: var(--c);
-  }
-  .container:not(:has(input:checked)):before {
+}
+
+input:checked {
+    --_c: var(--color);
+}
+
+.container:not(:has(input:checked)):before {
     --_i: -1;
     opacity: 0;
-  }
-  .container:has(input:checked):before {
+}
+
+.container:has(input:checked):before { /* here here here here here here here here */
     opacity: 1;
-    transform: translateY(calc(var(--_i)*(var(--s) + var(--g))))
-  }
-  .container:has(label:nth-child(1) input:checked):before {--_i:0;--_x:.02px}
-  .container:has(label:nth-child(2) input:checked):before {--_i:1;--_x:.04px}
-  .container:has(label:nth-child(3) input:checked):before {--_i:2;--_x:.06px}
-  .container:has(label:nth-child(4) input:checked):before {--_i:3;--_x:.08px}
-  .container:has(label:nth-child(5) input:checked):before {--_i:4;--_x:.1px}
-  /* and so on ..*/
+    transform: translateY(calc(var(--_i)*(var(--size) + var(--gap))));
+}
+
+.container:has(label:nth-child(1) input:checked):before {
+    --_i: 0;
+    --_x: 0.02px;
+}
+
+.container:has(label:nth-child(2) input:checked):before {
+    --_i: 1;
+    --_x: 0.04px;
+}
+
+.container:has(label:nth-child(3) input:checked):before {
+    --_i: 2;
+    --_x: 0.06px;
+}
   
-  input:disabled {
+input:disabled {
     background: 
        linear-gradient(#939393 0 0) 
        50%/100% 20% no-repeat content-box;
-    opacity: .5;
+    opacity: 0.5;
     cursor: not-allowed;
-  }
-  @media print {
+}
+
+
+@media print {
     input[type=radio] {
-      -webkit-appearance: auto;
-      -moz-appearance: auto;
-      appearance: auto;
-      background: none;
-    }
-  }
-  @supports not selector(:has(*)) {
-    .container:before {
-      display: none;
-    }
-    input:checked {
-      --_c: var(--c);
-      background: var(--c) content-box;
+        background: none;
+
+        -webkit-appearance: auto;
+        -moz-appearance: auto;
+        appearance: auto;
     }
 }
+
+@supports not selector(:has(*)) {
+    .container:before {
+        display: none;
+    }
+    input:checked {
+        --_c: var(--color);
+        background: var(--color) content-box;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    body {
+        font-size: 15px;
+    }
+    .tile {
+        font-size: 0.82em;
+    }
+}  
+
+@media screen and (min-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+    .tile {
+        font-size: 1.5em;
+    }
+}  
+
+@media screen and (min-width: 1079px) {
+    body {
+        font-size: 18px;
+    }
+    .tile {
+        font-size: 1.8em;
+    }
+} 

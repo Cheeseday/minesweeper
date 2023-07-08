@@ -114,7 +114,7 @@ labelMines.textContent = 'Enter the number of mines*: ';
 
 const minesButton = document.createElement('button');
 minesButton.classList.add(...['button', 'mines-button']);
-minesButton.textContent = 'Restart';
+minesButton.textContent = 'Update';
 
 numberOfMinesWrapper.insertAdjacentElement('afterbegin', minesButton);
 numberOfMinesWrapper.insertAdjacentElement('afterbegin', inputMines);
@@ -199,7 +199,7 @@ function defineTileSize() {
     } else if(screenWidth <= 767) {
         tileSize = 19;
     } else if(screenWidth <= 1079) {
-        tileSize = 30;
+        tileSize = 30;   
     } else if(screenWidth > 1079) {
         tileSize = 40;
     } else {
@@ -209,20 +209,8 @@ function defineTileSize() {
 }
 
 function displayField(xTiles, yTiles, tileSize) {
-    // const tileSize = defineTileSize(); 
-    // const tiles = document.querySelectorAll('.tile');
-    // console.log(tiles);
-    //check tile size
-    // if(window.clientWidth < 600)
-    // if(document.documentElement.clientWidth < 600) {
-    //     if(localStorage.getItem('fieldSize') === '10x10') {   //TODO: create function for change tile size and field size by several params
-    //         gameField.style.width = `${18 * xTiles + 6}px`;
-    //     } else {
-    //         gameField.style.width = `${15 * xTiles + 6}px`;
-    //     }
-    // } else {
-    gameField.style.width = `${tileSize * xTiles + 5.2}px`;
-    // }
+    gameField.style.width = `${tileSize * xTiles + 5.8}px`;
+
     flagButtonWrapper.insertAdjacentElement('beforebegin', gameField);
     rows = xTiles;
     columns = yTiles;
@@ -236,7 +224,7 @@ function insertTiles(xTiles, yTiles, tileSize) {
         let row = [];
         for(let j = 0; j < yTiles; j++){
             const tile = document.createElement('div');
-            tile.classList.add(...['tile', 'hard-tile']); 
+            tile.classList.add('tile');
             tile.id = `${i.toString()}-${j.toString()}`; 
             tile.style.width = `${tileSize}px`;
             tile.style.height = `${tileSize}px`;
@@ -289,10 +277,16 @@ function clickTile() {
     if(flagEnabled) {
         if(tile.innerText == '') {
             tile.innerText = flagIcon;
+            tile.classList.add('tile-flagged');
         }
         else if(tile.innerText == flagIcon) {
             tile.innerText = '';
+            tile.classList.remove('tile-flagged');
         }
+        return;
+    }
+
+    if(!flagEnabled && tile.innerText === flagIcon) {
         return;
     }
 
@@ -315,6 +309,7 @@ function revealMines(rows, columns) {
             let tile = board[i][j];
             if(minesLocation.includes(tile.id)) {
                 // tile.innerText = '💣';
+                tile.classList.add('tile-clicked');
                 tile.innerHTML = mineIcon;
                 // tile.style.backgroundColor = 'red';
             }
@@ -327,6 +322,9 @@ function checkMine(coordX, coordY) {
         return;
     }
     if(board[coordX][coordY].classList.contains('tile-clicked')) {
+        return;
+    }
+    if(board[coordX][coordY].innerText === flagIcon) {
         return;
     }
 
@@ -410,6 +408,7 @@ function createRadioElement(object, name) {
     input.id = object.name;
 
     const label = document.createElement('label');
+    label.className = 'input-size-label';
     label.for = `${input.id}`;
     label.textContent = input.value;
     return [input, label];
