@@ -25,6 +25,9 @@ let tilesClicked = 0; //goal to click all tiles except the ones containing mines
 
 let flagEnabled = false;
 let gameOver = false;
+// let gameTime;
+
+let numOfMoves = 0;
 
 const flagIcon = '🚩';
 
@@ -61,6 +64,14 @@ const mineCounter = document.createElement('span');
 mineCounter.classList.add('mine-counter');
 mineCounterWrapper.insertAdjacentElement('beforeend', counterLabel);
 mineCounterWrapper.insertAdjacentElement('beforeend', mineCounter);
+//Moves counter
+const movesWrapper = document.createElement('div');
+const movesLabel = document.createElement('span');
+movesLabel.textContent = 'Moves: ';
+const movesCounter = document.createElement('span');
+movesCounter.textContent = 0;
+movesWrapper.insertAdjacentElement('beforeend', movesLabel);
+movesWrapper.insertAdjacentElement('beforeend', movesCounter);
 //Button for start new game
 const buttonNewGame = document.createElement('button');
 buttonNewGame.classList.add(...['button', 'button-header']);
@@ -68,6 +79,7 @@ buttonNewGame.textContent = 'New game';
 
 header.insertAdjacentElement('beforeend', mineCounterWrapper);
 header.insertAdjacentElement('beforeend', buttonNewGame);
+header.insertAdjacentElement('beforeend', movesWrapper);
 header.insertAdjacentElement('beforeend', timer);
 
 // Game field
@@ -83,7 +95,7 @@ radioFormLabel.className = 'radio-form-label';
 radioFormLabel.textContent = 'Choose field size: ';
 const radioForm = document.createElement('form');
 radioForm.id = 'radioForm';
-radioForm.className = 'container'
+radioForm.className = 'container';
 
 let [input, label] = createRadioElement(easy, 'field-size');
 label.insertAdjacentElement('afterbegin', input);
@@ -121,31 +133,49 @@ numberOfMinesWrapper.insertAdjacentElement('afterbegin', inputMines);
 numberOfMinesWrapper.insertAdjacentElement('afterbegin', labelMines);
 
 //Button choose flag 
-const flagButtonWrapper = document.createElement('div');
-flagButtonWrapper.className = 'flag-wrapper';
+const buttonWrapper = document.createElement('div');
+buttonWrapper.className = 'footer-wrapper';
 const flagButton = document.createElement('button');
 flagButton.classList.add(...['button', 'button-footer']);
 flagButton.textContent = flagIcon;
-flagButtonWrapper.insertAdjacentElement('afterbegin', flagButton);
-
 //Change color palette version
 const root = document.querySelector(':root');
 const themeButton = document.createElement('button');
 themeButton.classList.add('theme-button');
 themeButton.textContent = 'Change theme';
-
 //remark
 const remark = document.createElement('p');
 remark.className = 'remark';
 remark.textContent = '* the number of mines should be changed from 10 to 99';
 
+buttonWrapper.insertAdjacentElement('beforeend', flagButton);
+buttonWrapper.insertAdjacentElement('beforeend', themeButton);
+buttonWrapper.insertAdjacentElement('beforeend', remark);
+
 body.insertAdjacentElement('beforeend', header);
 body.insertAdjacentElement('beforeend', radioWrapper);
 body.insertAdjacentElement('beforeend', numberOfMinesWrapper);
-body.insertAdjacentElement('beforeend', flagButtonWrapper);
-body.insertAdjacentElement('beforeend', themeButton);
-body.insertAdjacentElement('beforeend', remark);
+body.insertAdjacentElement('beforeend', buttonWrapper);
 
+//Modal window for end of the game
+const modalContainer = document.createElement('div');
+modalContainer.className = 'modal-container';
+const modalSection = document.createElement('section');
+modalSection.classList.add(...['modal', 'hidden']);
+const modalOverlay = document.createElement('div');
+modalOverlay.classList.add(...['overlay', 'hidden']);
+
+const result = document.createElement('p');
+const closeModalButton = document.createElement('button');
+closeModalButton.classList.add(...[ 'button-close']);
+closeModalButton.textContent = '⨉';
+
+modalSection.insertAdjacentElement('afterbegin', closeModalButton);
+modalSection.insertAdjacentElement('afterbegin', result);
+
+modalContainer.insertAdjacentElement('afterbegin', modalSection);
+body.insertAdjacentElement('afterbegin', modalContainer);
+body.insertAdjacentElement('afterbegin', modalOverlay);
 
 window.onload = function() {
     startGame();
@@ -187,8 +217,6 @@ function changeColorTheme() {
         root.classList.remove('dark');
         localStorage.setItem('theme', 'light');
     }
-    console.log(localStorage.getItem('theme'));
-    console.log(root);
 }
 
 function defineTileSize() {
@@ -211,13 +239,14 @@ function defineTileSize() {
 function displayField(xTiles, yTiles, tileSize) {
     gameField.style.width = `${tileSize * xTiles + 5.8}px`;
 
-    flagButtonWrapper.insertAdjacentElement('beforebegin', gameField);
+    buttonWrapper.insertAdjacentElement('beforebegin', gameField);
     rows = xTiles;
     columns = yTiles;
 }
 
 function insertTiles(xTiles, yTiles, tileSize) {
     flagButton.addEventListener('click', setFlag);
+    /////////////////////////////////////////////////////////////// ожидание действия пользователя
     setMines();
 
     for(let i = 0; i < xTiles; i++) {
@@ -291,10 +320,15 @@ function clickTile() {
     }
 
     if(minesLocation.includes(tile.id)) {
-        console.log('Game over!');
         gameOver = true;
         revealMines(rows, columns);
+        displayModal(false);
+        disableTiles();
         return;
+    }
+
+    if(numOfMoves === 0) {
+        console.log(11);
     }
 
     let coords = tile.id.split('-');
@@ -368,8 +402,10 @@ function checkMine(coordX, coordY) {
     if(tilesClicked == rows * columns - +mineCounter.textContent) {
         mineCounter.textContent = 'Cleared';
         gameOver = true;
+        displayModal(true);
+        disableTiles();
     }
-
+    
 }
 
 function checkTile(coordX, coordY) {
@@ -392,10 +428,12 @@ function resetGameToZero() {
     board = [];
     minesLocation = [];
     tilesClicked = 0;
-
+    numOfMoves = 0;
+    
     flagEnabled = false;
     gameOver = false;
-
+    
+    movesCounter.textContent = 0;
     gameField.replaceChildren();
 }
 
@@ -406,7 +444,7 @@ function createRadioElement(object, name) {
     let [tilesInWidth, tilesInHeight] = object.fieldSize.split('x');
     input.value = `${tilesInWidth}x${tilesInHeight}`;
     input.id = object.name;
-
+    
     const label = document.createElement('label');
     label.className = 'input-size-label';
     label.for = `${input.id}`;
@@ -423,6 +461,44 @@ function changeMinesCount() {
         inputMines.value = 10;
     } else {
         localStorage.setItem('countOfMines', inputMines.value);
+    }
+}
+
+function disableTiles() {
+    for(const row of board) {
+        for(const tile of row){
+            tile.style.pointerEvents = 'none';
+        }
+    }
+}
+
+function closeModal() {
+    modalSection.classList.add("hidden");
+    modalOverlay.classList.add("hidden");
+}
+
+function displayModal(condition) {
+    if(condition) {
+        result.classList.add('game-win');
+        result.textContent = `Hooray! You found all mines in ${'1'} seconds and ${numOfMoves} moves!`;
+        condition = false;
+    } else {
+        result.classList.add('game-lose');
+        result.textContent = 'Game over. Try again';
+        condition = true;
+    }
+    modalSection.classList.remove("hidden");
+    modalOverlay.classList.remove("hidden");
+}
+
+function addButtonAnimation() {
+    let isClicked = this.classList.contains('mouse-over');
+    if(!isClicked) {
+        this.classList.remove('mouse-out');
+        this.classList.add('mouse-over');
+    } else {
+        this.classList.remove('mouse-over');
+        this.classList.add('mouse-out');
     }
 }
 
@@ -444,4 +520,23 @@ radioForm.addEventListener('click', (event) => {
     }
 });
 
+gameField.addEventListener('click', (event) => {
+    if(event.target.classList.contains('tile')) {
+        numOfMoves++;
+        console.log(numOfMoves);
+        movesCounter.textContent = numOfMoves;
+    }
+})
+
 themeButton.addEventListener('click', changeColorTheme);
+
+closeModalButton.addEventListener('click', closeModal);
+
+modalOverlay.addEventListener("click", closeModal);
+
+const buttons = document.querySelectorAll('button');
+
+for(const button of buttons) {
+    button.addEventListener('mouseover', addButtonAnimation);
+    button.addEventListener('mouseout', addButtonAnimation);
+}
