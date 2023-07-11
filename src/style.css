@@ -11,6 +11,7 @@
     --text-color: #01685D;
     --button-text-color: #262626;
     --active-color: #02AB9A;
+    --wrong-flagged-color: #FF5959;
     /* colors that changed for tiles number */
     --one-color: #0000FF;
     --four-color: #000080;
@@ -23,12 +24,13 @@
     --base: #000000;
     --antipod: #FFFFFF;
     --main-color: #262525; /* TODO: choose optimal color combination */
-    --submain-color: #181616;
+    --submain-color: #1E1D1D;
     --tile-border: #706767;
     --body-color: #3A3535;
     --text-color: #F2F2F2;
     --button-color: #383838;
     --active-color: #01685D;
+    --wrong-flagged-color: #931919;
     /* colors that changed for tiles number */
     --one-color: #0055FF;
     --four-color: #00BBFF;
@@ -75,16 +77,6 @@ button {
     -webkit-transition: all 0.5s ease-in-out;
     -moz-transition: all 0.5s ease-in-out;
     transition: all 0.5s ease-in-out;
-}
-
-button:hover, 
-button:active, 
-.button-footer:active {
-    border: 1.3px solid var(--active-color);
-
-    color: var(--active-color);
-
-    background-color: var(--base);
 }
 
 .header {
@@ -153,33 +145,19 @@ button:active,
     transition: all 0.4s ease-out;
 }
 
-.tile:hover {
-    border-color: color-mix(in srgb, var(--antipod) 9%, var(--tile-border));
-    border-right-color: color-mix(in srgb, var(--antipod) 15%, var(--border-right-color));
-    border-bottom-color: color-mix(in srgb, var(--antipod) 20%, var(--border-bottom-color));
-
-    background-color: color-mix(in srgb, var(--antipod) 35%, var(--base));
-
-    -webkit-transition: all 0.4s ease-out;
-    -moz-transition: all 0.4s ease-out;
-    transition: all 0.4s ease-out;
-
-    cursor: pointer;
-}
-
-.tile-flagged:hover {
-    border-color: var(--tile-border);
-    border-right-color: var(--border-right-color);
-    border-bottom-color: var(--border-bottom-color);
-
-    background: none;
-}
-
 .tile-clicked {
     background-color: var(--submain-color);
     border: 0.05em solid var(--tile-border);
 
     pointer-events: none;
+}
+
+.wrong-flagged {
+    border-color: color-mix(in srgb, white 13%, var(--wrong-flagged-color));
+    border-right-color: color-mix(in srgb, black 20%, var(--wrong-flagged-color));
+    border-bottom-color: color-mix(in srgb, black 25%, var(--wrong-flagged-color));
+    
+    background-color: var(--wrong-flagged-color);
 }
 
 .remark {
@@ -444,14 +422,6 @@ input:disabled {
     display: none;
 }
 
-.mouse-over {
-    animation: increaseButton 0.4s ease forwards;
-}
-
-.mouse-out {
-    animation: decreaseButton 0.4s ease forwards;
-}
-
 @keyframes increaseButton {
     0% {
       transform: scale(1, 1);
@@ -467,5 +437,47 @@ input:disabled {
     }
     100% {
       transform: scale(1, 1);
+    }
+}
+
+/* Hovers */
+
+@media(hover: hover) {
+    .tile-flagged:hover {
+        border-color: var(--tile-border);
+        border-right-color: var(--border-right-color);
+        border-bottom-color: var(--border-bottom-color);
+    
+        background: none;
+    }
+
+    .tile:hover {
+        border-color: color-mix(in srgb, var(--antipod) 9%, var(--tile-border));
+        border-right-color: color-mix(in srgb, var(--antipod) 15%, var(--border-right-color));
+        border-bottom-color: color-mix(in srgb, var(--antipod) 20%, var(--border-bottom-color));
+    
+        background-color: color-mix(in srgb, var(--antipod) 35%, var(--base));
+    
+        -webkit-transition: all 0.4s ease-out;
+        -moz-transition: all 0.4s ease-out;
+        transition: all 0.4s ease-out;
+    
+        cursor: pointer;
+    }
+
+    button:hover { 
+        border: 1.3px solid var(--active-color);
+
+        color: var(--active-color);
+
+        background-color: var(--base);
+    }
+
+    .mouse-over {
+        animation: increaseButton 0.4s ease forwards;
+    }
+    
+    .mouse-out {
+        animation: decreaseButton 0.4s ease forwards;
     }
 }

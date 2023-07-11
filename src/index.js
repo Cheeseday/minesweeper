@@ -27,7 +27,7 @@ let flagEnabled = false;
 let gameOver = false;
 // let gameTime;
 
-let numOfMoves = 0;
+let numOfMoves = 0; //count of user moves for complete the game
 
 const flagIcon = '🚩';
 
@@ -115,7 +115,7 @@ const numberOfMinesWrapper = document.createElement('div');
 const inputMines = document.createElement('input');
 inputMines.type = 'number';
 inputMines.name = 'number-of-mines';
-inputMines.value = 10;
+// inputMines.value = 10;
 inputMines.min = 10;
 inputMines.max = 99;
 inputMines.id = 'number-of-mines';
@@ -246,8 +246,11 @@ function displayField(xTiles, yTiles, tileSize) {
 
 function insertTiles(xTiles, yTiles, tileSize) {
     flagButton.addEventListener('click', setFlag);
-    /////////////////////////////////////////////////////////////// ожидание действия пользователя
-    setMines();
+    const mines = localStorage.getItem('countOfMines');
+    mineCounter.textContent = mines ?? 10;
+    inputMines.value = mines ?? 10;
+    
+    setMines(mines);
 
     for(let i = 0; i < xTiles; i++) {
         let row = [];
@@ -265,22 +268,15 @@ function insertTiles(xTiles, yTiles, tileSize) {
     }
 }
 
-function setMines() {
-    let minesLeft;
-    const mines = localStorage.getItem('countOfMines');
-    if(mines) {
-        minesLeft = mines;
-        mineCounter.textContent = mines;
-    } else {
-        minesLeft = 10;
-        mineCounter.textContent = 10;
-    }
+function setMines(mines, withoutMines) {
+    let minesLeft = mines ?? 0;
+    let arrayWithoutMines = withoutMines ?? [];
     while(minesLeft > 0) {
         let r = Math.floor(Math.random() * rows);
         let c = Math.floor(Math.random() * columns);
         let id = `${r.toString()}-${c.toString()}`;
 
-        if(!minesLocation.includes(id)) {
+        if(!minesLocation.includes(id) && !arrayWithoutMines.includes(id)) {
             minesLocation.push(id);
             minesLeft -= 1;
         }
@@ -319,16 +315,23 @@ function clickTile() {
         return;
     }
 
-    if(minesLocation.includes(tile.id)) {
+    let hasMine = minesLocation.includes(tile.id); 
+    if(hasMine && numOfMoves === 0) {
+        let withoutMines = [];
+        let insertMines = 1;
+        const clickedTileLocation = minesLocation.findIndex(item => item === tile.id);
+        minesLocation.splice(clickedTileLocation, 1);
+        withoutMines.push(tile.id);
+        setMines(insertMines, withoutMines);
+    }
+
+    hasMine = minesLocation.includes(tile.id); 
+    if(hasMine) {
         gameOver = true;
         revealMines(rows, columns);
         displayModal(false);
         disableTiles();
         return;
-    }
-
-    if(numOfMoves === 0) {
-        console.log(11);
     }
 
     let coords = tile.id.split('-');
@@ -341,11 +344,15 @@ function revealMines(rows, columns) {
     for(let i = 0; i < rows; i++) {
         for(let j = 0; j < columns; j++){
             let tile = board[i][j];
-            if(minesLocation.includes(tile.id)) {
+            const hasMine = minesLocation.includes(tile.id);
+            const isFlagged = tile.classList.contains('tile-flagged');
+            if(hasMine && !isFlagged) {
                 // tile.innerText = '💣';
                 tile.classList.add('tile-clicked');
                 tile.innerHTML = mineIcon;
                 // tile.style.backgroundColor = 'red';
+            } else if(!hasMine && isFlagged) {
+                tile.classList.add('wrong-flagged');
             }
         }
     }
@@ -402,6 +409,7 @@ function checkMine(coordX, coordY) {
     if(tilesClicked == rows * columns - +mineCounter.textContent) {
         mineCounter.textContent = 'Cleared';
         gameOver = true;
+        revealMines(rows, columns);
         displayModal(true);
         disableTiles();
     }
@@ -511,22 +519,22 @@ minesButton.addEventListener('click', () => {
 });
 
 radioForm.addEventListener('click', (event) => {
-    if(event.target.value === '10x10') {
-        localStorage.setItem('fieldSize', event.target.value);
-    } else if(event.target.value === '15x15') {
-        localStorage.setItem('fieldSize', event.target.value);
-    } else if(event.target.value === '25x25') {
-        localStorage.setItem('fieldSize', event.target.value);
+    const size = event.target.value;
+    if(size === '10x10') {
+        localStorage.setItem('fieldSize', size);
+    } else if(size === '15x15') {
+        localStorage.setItem('fieldSize', size);
+    } else if(size === '25x25') {
+        localStorage.setItem('fieldSize', size);
     }
 });
 
 gameField.addEventListener('click', (event) => {
     if(event.target.classList.contains('tile')) {
         numOfMoves++;
-        console.log(numOfMoves);
         movesCounter.textContent = numOfMoves;
     }
-})
+});
 
 themeButton.addEventListener('click', changeColorTheme);
 
