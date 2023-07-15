@@ -28,6 +28,7 @@ let gameOver = false;
 // let gameTime;
 
 let numOfMoves = 0; //count of user moves for complete the game
+let interval;
 
 const flagIcon = '🚩';
 
@@ -52,12 +53,22 @@ const body = document.body;
 const header = document.createElement('header');
 header.classList.add('header');
 //Timer
-const timer = document.createElement('div');
-timer.classList.add('header-wrapper');
-timer.textContent = 'Time: ';
+const timerBlock = document.createElement('div');
+timerBlock.classList.add('header-element');
+timerBlock.textContent = 'Time: ';
+const timer = document.createElement('p');
+timer.className = 'stopwatch';
+timer.textContent = ':';
+const timerMin = document.createElement('span');
+timerMin.textContent = '00';
+const timerSec = document.createElement('span');
+timerSec.textContent = '00';
+timer.insertAdjacentElement('afterbegin', timerMin);
+timer.insertAdjacentElement('beforeend', timerSec);
+timerBlock.insertAdjacentElement('beforeend', timer);
 //Mine counter
 const mineCounterWrapper = document.createElement('div');
-mineCounterWrapper.classList.add('header-wrapper');
+mineCounterWrapper.classList.add('header-element');
 const counterLabel = document.createElement('span');
 counterLabel.textContent = 'Mines: ';
 const mineCounter = document.createElement('span');
@@ -80,12 +91,11 @@ buttonNewGame.textContent = 'New game';
 header.insertAdjacentElement('beforeend', mineCounterWrapper);
 header.insertAdjacentElement('beforeend', buttonNewGame);
 header.insertAdjacentElement('beforeend', movesWrapper);
-header.insertAdjacentElement('beforeend', timer);
+header.insertAdjacentElement('beforeend', timerBlock);
 
 // Game field
 const gameField = document.createElement('div');
 gameField.className = 'game-field';
-// gameField.style.width = `${easy.tileSize * easy.fieldSize[0]+ 6}px`;
 
 //Radio for choose field size
 const radioWrapper = document.createElement('div');
@@ -115,7 +125,6 @@ const numberOfMinesWrapper = document.createElement('div');
 const inputMines = document.createElement('input');
 inputMines.type = 'number';
 inputMines.name = 'number-of-mines';
-// inputMines.value = 10;
 inputMines.min = 10;
 inputMines.max = 99;
 inputMines.id = 'number-of-mines';
@@ -124,11 +133,11 @@ const labelMines = document.createElement('label');
 labelMines.for = `${inputMines.id}`;
 labelMines.textContent = 'Enter the number of mines*: ';
 
-const minesButton = document.createElement('button');
-minesButton.classList.add(...['button', 'mines-button']);
-minesButton.textContent = 'Update';
+const updateButton = document.createElement('button');
+updateButton.classList.add(...['button', 'update-button']);
+updateButton.textContent = 'Update';
 
-numberOfMinesWrapper.insertAdjacentElement('afterbegin', minesButton);
+numberOfMinesWrapper.insertAdjacentElement('afterbegin', updateButton);
 numberOfMinesWrapper.insertAdjacentElement('afterbegin', inputMines);
 numberOfMinesWrapper.insertAdjacentElement('afterbegin', labelMines);
 
@@ -148,14 +157,6 @@ const remark = document.createElement('p');
 remark.className = 'remark';
 remark.textContent = '* the number of mines should be changed from 10 to 99';
 
-buttonWrapper.insertAdjacentElement('beforeend', flagButton);
-buttonWrapper.insertAdjacentElement('beforeend', themeButton);
-buttonWrapper.insertAdjacentElement('beforeend', remark);
-
-body.insertAdjacentElement('beforeend', header);
-body.insertAdjacentElement('beforeend', radioWrapper);
-body.insertAdjacentElement('beforeend', numberOfMinesWrapper);
-body.insertAdjacentElement('beforeend', buttonWrapper);
 
 //Modal window for end of the game
 const modalContainer = document.createElement('div');
@@ -170,11 +171,41 @@ const closeModalButton = document.createElement('button');
 closeModalButton.classList.add(...[ 'button-close']);
 closeModalButton.textContent = '⨉';
 
+//Modal window for the best results
+const modalResultsContainer = document.createElement('div');
+modalResultsContainer.className = 'modal-container';
+const modalForResults = document.createElement('div');
+const headerOfResults = document.createElement('p');
+headerOfResults.textContent = ('Your best results').toLocaleUpperCase();
+const wrapper = document.createElement('div');
+const listOfResults = document.createElement('ol');
+listOfResults.type = '1';
+wrapper.insertAdjacentElement('beforeend', listOfResults);
+modalForResults.insertAdjacentElement('beforeend', headerOfResults);
+modalForResults.insertAdjacentElement('beforeend', wrapper);
+modalForResults.classList.add(...['modal', 'hidden', 'modal-results']);
+const resultsButton = document.createElement('button');
+resultsButton.textContent = 'Your best results';
+modalResultsContainer.insertAdjacentElement('beforeend', modalForResults);
+createListOfResults();
+
+//Inserting of the elements
+buttonWrapper.insertAdjacentElement('beforeend', flagButton);
+buttonWrapper.insertAdjacentElement('beforeend', themeButton);
+buttonWrapper.insertAdjacentElement('beforeend', resultsButton);
+buttonWrapper.insertAdjacentElement('beforeend', remark);
+
 modalSection.insertAdjacentElement('afterbegin', closeModalButton);
 modalSection.insertAdjacentElement('afterbegin', result);
-
 modalContainer.insertAdjacentElement('afterbegin', modalSection);
+
+body.insertAdjacentElement('beforeend', header);
+body.insertAdjacentElement('beforeend', radioWrapper);
+body.insertAdjacentElement('beforeend', numberOfMinesWrapper);
+body.insertAdjacentElement('beforeend', buttonWrapper);
+
 body.insertAdjacentElement('afterbegin', modalContainer);
+body.insertAdjacentElement('afterbegin', modalResultsContainer);
 body.insertAdjacentElement('afterbegin', modalOverlay);
 
 window.onload = function() {
@@ -249,7 +280,7 @@ function insertTiles(xTiles, yTiles, tileSize) {
     const mines = localStorage.getItem('countOfMines');
     mineCounter.textContent = mines ?? 10;
     inputMines.value = mines ?? 10;
-    
+
     setMines(mines);
 
     for(let i = 0; i < xTiles; i++) {
@@ -315,6 +346,10 @@ function clickTile() {
         return;
     }
 
+    if(numOfMoves === 0) {
+        startStopwatch();
+    }
+
     let hasMine = minesLocation.includes(tile.id); 
     if(hasMine && numOfMoves === 0) {
         let withoutMines = [];
@@ -328,6 +363,7 @@ function clickTile() {
     hasMine = minesLocation.includes(tile.id); 
     if(hasMine) {
         gameOver = true;
+        stopStopwatch();
         revealMines(rows, columns);
         displayModal(false);
         disableTiles();
@@ -407,15 +443,15 @@ function checkMine(coordX, coordY) {
         checkMine(coordX + 1, coordY + 1);
     }
     if(tilesClicked == rows * columns - +mineCounter.textContent) {
-        mineCounter.textContent = 'Cleared';
         gameOver = true;
+        stopStopwatch();
         revealMines(rows, columns);
         displayModal(true);
         disableTiles();
+        updateBestResults(mineCounter.textContent, movesCounter.textContent, timer.textContent);
     }
     
 }
-
 function checkTile(coordX, coordY) {
     if(coordX < 0 || coordX >= rows || coordY < 0 || coordY >= columns) {
         return 0;
@@ -429,6 +465,7 @@ function checkTile(coordX, coordY) {
 function newGame() {
     resetGameToZero();
     changeMinesCount();
+    clearStopwatch();
     startGame();
 }
 
@@ -440,6 +477,8 @@ function resetGameToZero() {
     
     flagEnabled = false;
     gameOver = false;
+
+    flagButton.classList.remove('active-button');
     
     movesCounter.textContent = 0;
     gameField.replaceChildren();
@@ -481,22 +520,23 @@ function disableTiles() {
 }
 
 function closeModal() {
-    modalSection.classList.add("hidden");
-    modalOverlay.classList.add("hidden");
+    modalSection.classList.add('hidden');
+    modalOverlay.classList.add('hidden');
+    modalForResults.classList.add('hidden');
 }
 
 function displayModal(condition) {
     if(condition) {
         result.classList.add('game-win');
-        result.textContent = `Hooray! You found all mines in ${'1'} seconds and ${numOfMoves} moves!`;
+        result.textContent = `Hooray! You found all mines in ${bringOutTime()} and ${numOfMoves} moves!`;
         condition = false;
     } else {
         result.classList.add('game-lose');
         result.textContent = 'Game over. Try again';
         condition = true;
     }
-    modalSection.classList.remove("hidden");
-    modalOverlay.classList.remove("hidden");
+    modalSection.classList.remove('hidden');
+    modalOverlay.classList.remove('hidden');
 }
 
 function addButtonAnimation() {
@@ -510,10 +550,135 @@ function addButtonAnimation() {
     }
 }
 
+function updateBestResults(mines, moves, time) {
+    const newNote = createNote(mines, moves, time);
+    const array = receiveBestResults();
+    if(array.length < 10) {
+        array.push(newNote);
+        array.sort(sortArray);
+        localStorage.setItem('bestResults', JSON.stringify(array));
+        return;
+    }
+    const hasWorseResult = array.some(element => countSeconds(element.time) > countSeconds(newNote.time));
+    if(hasWorseResult) {
+        array.pop();
+        array.push(newNote);
+        array.sort(sortArray);
+        localStorage.setItem('bestResults', JSON.stringify(array));
+    }
+    return;
+}
+
+function createNote(mines, moves, time) {
+    return {
+        time: time,
+        moves: moves,
+        mines: mines,
+    };
+}
+
+function sortArray(a, b) {
+    const timeA = countSeconds(a.time);
+    const timeB = countSeconds(b.time);
+    if (timeA < timeB) {
+        return -1;
+    }
+    if (timeA > timeB) {
+        return 1;
+    }
+    return 0;
+}
+
+function countSeconds(time) {
+    const [minutes, seconds] = time.split(':');
+    const result = minutes * 60 + (+seconds);
+    return result; 
+}
+
+function receiveBestResults() {
+    let bestResults;
+    if(localStorage.getItem('bestResults') !== '') {
+        bestResults = localStorage.getItem('bestResults');
+    } else {
+        bestResults = '[]';
+    }
+    return JSON.parse(bestResults);
+}
+
+function createListOfResults() {
+    listOfResults.replaceChildren();
+    const resultsArray = receiveBestResults();
+    resultsArray.forEach((element) => {
+        const content = `Time: ${element.time}, moves: ${element.moves}, mines: ${element.mines}`;
+        const item = document.createElement('li');
+        item.className = 'results-item';
+        item.textContent = content;
+        listOfResults.insertAdjacentElement('beforeend', item); 
+    });
+    return;
+}
+
+function displayResults() {
+    modalForResults.classList.remove("hidden");
+    modalOverlay.classList.remove("hidden");
+    return;
+}
+
+function startStopwatch() {
+    clearInterval(interval);
+    interval = setInterval(startTimer, 1000);
+    return;
+}
+
+function stopStopwatch() {
+    clearInterval(interval);
+    return;
+}
+
+function clearStopwatch() {
+    stopStopwatch();
+    timerSec.textContent = '00';
+    timerMin.textContent = '00';
+    return;
+}
+
+function startTimer() {
+    let seconds = +timerSec.textContent;
+    let minutes = +timerMin.textContent;
+    if(seconds < 9) {
+        seconds = '0' + (seconds + 1); 
+    } else if(+seconds >= 9) {
+        seconds = (seconds + 1); 
+    }
+    if(seconds > 59) {
+        if(minutes < 9) {
+            minutes = '0' + (minutes + 1).toString(); 
+        } else {
+            minutes = minutes++;
+        }
+        timerMin.textContent = minutes;
+        seconds = '00';
+    }
+    timerSec.textContent = seconds;
+    return;
+}
+
+function bringOutTime() {
+    let seconds = +timerSec.textContent;
+    let minutes = +timerMin.textContent;
+    if(minutes === 0) {
+        return `${seconds} seconds`;
+    } else if(minutes === 1) {
+        return `1 minute and ${seconds} seconds`;
+    } else {
+        return `${minutes} minutes and ${seconds} seconds`;
+    }
+}
+
 //Event listeners
 buttonNewGame.addEventListener('click', newGame);
 
-minesButton.addEventListener('click', () => {
+updateButton.addEventListener('click', () => {
     changeMinesCount();
     newGame();
 });
@@ -540,7 +705,9 @@ themeButton.addEventListener('click', changeColorTheme);
 
 closeModalButton.addEventListener('click', closeModal);
 
-modalOverlay.addEventListener("click", closeModal);
+modalOverlay.addEventListener('click', closeModal);
+
+resultsButton.addEventListener('click', displayResults)
 
 const buttons = document.querySelectorAll('button');
 

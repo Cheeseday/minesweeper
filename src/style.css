@@ -100,7 +100,11 @@ button {
     gap: 10px;
 }
 
-.mines-button {
+.stopwatch {
+    display: inline-block;
+}
+
+.update-button {
     margin-left: 10px;
 }
 
@@ -283,7 +287,7 @@ input:checked {
     opacity: 0;
 }
 
-.container:has(input:checked):before { /* here here here here here here here here */
+.container:has(input:checked):before {
     opacity: 1;
     transform: translateY(calc(var(--_i)*(var(--size) + var(--gap))));
 }
@@ -359,7 +363,7 @@ input:disabled {
     }
 } 
 
-/* Modal window */
+/* Modal windows settings */
 .modal-container {
     display: flex;
     justify-content: center;    
@@ -402,6 +406,33 @@ input:disabled {
     transform: translate(10px, -20px);
 }
 
+/* Modal window for results */
+
+.modal-results {
+    top: 20%;
+
+    flex-direction: column;
+
+    text-align: start;
+}
+
+.modal-results p {
+    margin-left: 20px;
+
+    font-weight: 700;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.results-item {
+    margin: 4px 6px;
+}
+
+li.results-item::marker {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
 .overlay {
     position: fixed;
     top: 0;
@@ -421,6 +452,8 @@ input:disabled {
 .hidden {
     display: none;
 }
+
+/* Keyframes for button */
 
 @keyframes increaseButton {
     0% {
