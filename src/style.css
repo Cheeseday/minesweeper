@@ -1,40 +1,42 @@
 /* Color palette */
+
 /* Light color palette version */
 .light {
     --base: #FFFFFF;
     --antipod: #000000;
     --main-color: #D3D3D3;
     --submain-color: #A9A9A9;
-    --tile-border: #F5F5F5;
     --body-color: #fbfbfb;
     --button-color: #FBFBFB;
     --text-color: #01685D;
     --button-text-color: #262626;
     --active-color: #02AB9A;
     --wrong-flagged-color: #FF5959;
-    /* colors that changed for tiles number */
+    /* colors changed numbers inside tiles */
     --one-color: #0000FF;
     --four-color: #000080;
     /* border colors */
+    --tile-border: #F5F5F5;
     --border-right-color: #555555;
     --border-bottom-color: #474747;
 }
+
 /* Dark color palette version */
 .dark {
     --base: #000000;
     --antipod: #FFFFFF;
-    --main-color: #262525; /* TODO: choose optimal color combination */
+    --main-color: #262525;
     --submain-color: #1E1D1D;
-    --tile-border: #706767;
     --body-color: #3A3535;
     --text-color: #F2F2F2;
     --button-color: #383838;
     --active-color: #01685D;
     --wrong-flagged-color: #931919;
-    /* colors that changed for tiles number */
+    /* colors changed numbers inside tiles */
     --one-color: #0055FF;
     --four-color: #00BBFF;
     /* border colors */
+    --tile-border: #706767;
     --border-right-color: #111111;
     --border-bottom-color: #000000;
 }
@@ -74,9 +76,9 @@ button {
     letter-spacing: 1px;
     cursor: pointer;
 
-    -webkit-transition: all 0.5s ease-in-out;
-    -moz-transition: all 0.5s ease-in-out;
-    transition: all 0.5s ease-in-out;
+    -webkit-transition: all 0.4s ease-in-out;
+    -moz-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
 }
 
 .header {
@@ -244,6 +246,8 @@ input:focus {
 
     background: var(--color);
 
+    -webkit-transition: 0.4s, left cubic-bezier(.1,-2000,.7,-2000) 0.4s;
+    -moz-transition: 0.4s, left cubic-bezier(.1,-2000,.7,-2000) 0.4s;
     transition: 0.4s, left cubic-bezier(.1,-2000,.7,-2000) 0.4s;
 
     aspect-ratio: 1;
@@ -269,6 +273,9 @@ input:focus {
 
     font-size: inherit;
     outline-offset: calc(var(--size) / 10);
+
+    -webkit-transition: 0.3s;
+    -moz-transition: 0.3s;
     transition: 0.3s;
 
     aspect-ratio: 1;
@@ -402,8 +409,6 @@ input:disabled {
     padding: 0 0.2rem;
     border-radius: 50%;
     font-size: 20px;
-
-    transform: translate(10px, -20px);
 }
 
 /* Modal window for results */
