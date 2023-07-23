@@ -1,3 +1,8 @@
+import { startStopwatch, stopStopwatch, clearStopwatch } from './components/stopwatch';
+import { mineIcon } from './components/mineIcon';
+import { updateBestResults, createListOfResults } from './components/bestResults';
+import { changeColorTheme, chooseColorTheme } from './components/colorTheme';
+
 const easy = {
     name: 'easy',
     minesCount: 10,
@@ -14,8 +19,6 @@ const hard = {
     fieldSize: '25x25',
 }
 
-// const tileSize = 35;
-
 let rows;
 let columns;
 
@@ -25,37 +28,21 @@ let tilesClicked = 0; //goal to click all tiles except the ones containing mines
 
 let flagEnabled = false;
 let gameOver = false;
-// let gameTime;
 
 let numOfMoves = 0; //count of user moves for complete the game
-let interval;
 
 const flagIcon = '🚩';
 
-const mineIcon = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-width="70%" height="70%" viewBox="0 0 48.000000 48.000000"
-preserveAspectRatio="xMidYMid meet">
-
-<g transform="translate(0.000000,48.000000) scale(0.100000,-0.100000)"
-fill="#000000" stroke="#FFFFFF" stroke-width="0">
-<path d="M226 442 c-9 -26 -97 -62 -119 -48 -21 13 -34 0 -21 -21 15 -23 -25
--123 -48 -123 -23 0 -23 -17 0 -24 26 -9 62 -97 48 -119 -13 -21 0 -34 21 -21
-22 14 110 -22 119 -48 7 -23 21 -23 28 0 9 26 97 62 119 48 21 -13 34 0 21 21
--14 22 22 110 48 119 23 7 23 24 1 24 -24 0 -64 100 -49 123 13 21 0 34 -21
-21 -22 -14 -110 22 -119 48 -3 10 -9 18 -14 18 -5 0 -11 -8 -14 -18z m-11
--152 c0 -18 -6 -26 -23 -28 -24 -4 -38 18 -28 44 3 9 15 14 28 12 17 -2 23
--10 23 -28z"/>
-</g>
-</svg>`;  //carry on another module
-
 const body = document.body;
 
+//Header
 const header = document.createElement('header');
 header.classList.add('header');
+
 //Timer
-const timerBlock = document.createElement('div');
-timerBlock.classList.add('header-element');
-timerBlock.textContent = 'Time: ';
+const timerWrapper = document.createElement('div');
+timerWrapper.classList.add('header-element');
+timerWrapper.textContent = 'Time: ';
 const timer = document.createElement('p');
 timer.className = 'stopwatch';
 timer.textContent = ':';
@@ -65,7 +52,8 @@ const timerSec = document.createElement('span');
 timerSec.textContent = '00';
 timer.insertAdjacentElement('afterbegin', timerMin);
 timer.insertAdjacentElement('beforeend', timerSec);
-timerBlock.insertAdjacentElement('beforeend', timer);
+timerWrapper.insertAdjacentElement('beforeend', timer);
+
 //Mine counter
 const mineCounterWrapper = document.createElement('div');
 mineCounterWrapper.classList.add('header-element');
@@ -75,6 +63,7 @@ const mineCounter = document.createElement('span');
 mineCounter.classList.add('mine-counter');
 mineCounterWrapper.insertAdjacentElement('beforeend', counterLabel);
 mineCounterWrapper.insertAdjacentElement('beforeend', mineCounter);
+
 //Moves counter
 const movesWrapper = document.createElement('div');
 const movesLabel = document.createElement('span');
@@ -83,6 +72,7 @@ const movesCounter = document.createElement('span');
 movesCounter.textContent = 0;
 movesWrapper.insertAdjacentElement('beforeend', movesLabel);
 movesWrapper.insertAdjacentElement('beforeend', movesCounter);
+
 //Button for start new game
 const buttonNewGame = document.createElement('button');
 buttonNewGame.classList.add(...['button', 'button-header']);
@@ -91,7 +81,7 @@ buttonNewGame.textContent = 'New game';
 header.insertAdjacentElement('beforeend', mineCounterWrapper);
 header.insertAdjacentElement('beforeend', buttonNewGame);
 header.insertAdjacentElement('beforeend', movesWrapper);
-header.insertAdjacentElement('beforeend', timerBlock);
+header.insertAdjacentElement('beforeend', timerWrapper);
 
 // Game field
 const gameField = document.createElement('div');
@@ -120,7 +110,7 @@ radioForm.insertAdjacentElement('beforeend', label);
 radioWrapper.insertAdjacentElement('afterbegin', radioForm);
 radioWrapper.insertAdjacentElement('afterbegin', radioFormLabel);
 
-//Mines counter
+//Mines counter 
 const numberOfMinesWrapper = document.createElement('div');
 const inputMines = document.createElement('input');
 inputMines.type = 'number';
@@ -133,6 +123,7 @@ const labelMines = document.createElement('label');
 labelMines.for = `${inputMines.id}`;
 labelMines.textContent = 'Enter the number of mines*: ';
 
+//Update button
 const updateButton = document.createElement('button');
 updateButton.classList.add(...['button', 'update-button']);
 updateButton.textContent = 'Update';
@@ -147,16 +138,17 @@ buttonWrapper.className = 'footer-wrapper';
 const flagButton = document.createElement('button');
 flagButton.classList.add(...['button', 'button-footer']);
 flagButton.textContent = flagIcon;
+
 //Change color palette version
-const root = document.querySelector(':root');
+// const root = document.querySelector(':root');
 const themeButton = document.createElement('button');
 themeButton.classList.add('theme-button');
 themeButton.textContent = 'Change theme';
+
 //remark
 const remark = document.createElement('p');
 remark.className = 'remark';
 remark.textContent = '* the number of mines should be changed from 10 to 99';
-
 
 //Modal window for end of the game
 const modalContainer = document.createElement('div');
@@ -177,17 +169,19 @@ modalResultsContainer.className = 'modal-container';
 const modalForResults = document.createElement('div');
 const headerOfResults = document.createElement('p');
 headerOfResults.textContent = ('Your best results').toLocaleUpperCase();
+   
 const wrapper = document.createElement('div');
 const listOfResults = document.createElement('ol');
 listOfResults.type = '1';
 wrapper.insertAdjacentElement('beforeend', listOfResults);
+modalForResults.classList.add(...['modal', 'hidden', 'modal-results']);
 modalForResults.insertAdjacentElement('beforeend', headerOfResults);
 modalForResults.insertAdjacentElement('beforeend', wrapper);
-modalForResults.classList.add(...['modal', 'hidden', 'modal-results']);
+modalResultsContainer.insertAdjacentElement('beforeend', modalForResults);
+
+//Button for display the list of best results 
 const resultsButton = document.createElement('button');
 resultsButton.textContent = 'Your best results';
-modalResultsContainer.insertAdjacentElement('beforeend', modalForResults);
-createListOfResults();
 
 //Inserting of the elements
 buttonWrapper.insertAdjacentElement('beforeend', flagButton);
@@ -227,27 +221,26 @@ function startGame() {
     chooseColorTheme();
 }
 
-function chooseColorTheme() {
-    let theme = localStorage.getItem('theme');
-    if(!theme || theme === 'light') {
-        root.classList.add('light');
-        localStorage.setItem('theme', 'light');
-    } else if(theme === 'dark') {
-        root.classList.add('dark');
-    }
+function newGame() {
+    resetGameToZero();
+    changeMinesCount();
+    clearStopwatch(timerSec, timerMin);
+    startGame();
 }
 
-function changeColorTheme() {
-    const theme = localStorage.getItem('theme');
-    if(!theme || theme === 'light') {
-        root.classList.add('dark');
-        root.classList.remove('light');
-        localStorage.setItem('theme', 'dark');
-    } else if(theme === 'dark') {
-        root.classList.add('light');
-        root.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-    }
+function resetGameToZero() {
+    board = [];
+    minesLocation = [];
+    tilesClicked = 0;
+    numOfMoves = 0;
+    
+    flagEnabled = false;
+    gameOver = false;
+
+    flagButton.classList.remove('active-button');
+    
+    movesCounter.textContent = 0;
+    gameField.replaceChildren();
 }
 
 function defineTileSize() {
@@ -347,7 +340,7 @@ function clickTile() {
     }
 
     if(numOfMoves === 0) {
-        startStopwatch();
+        startStopwatch(timerSec, timerMin);
     }
 
     let hasMine = minesLocation.includes(tile.id); 
@@ -452,6 +445,7 @@ function checkMine(coordX, coordY) {
     }
     
 }
+
 function checkTile(coordX, coordY) {
     if(coordX < 0 || coordX >= rows || coordY < 0 || coordY >= columns) {
         return 0;
@@ -462,26 +456,12 @@ function checkTile(coordX, coordY) {
     return 0;
 }
 
-function newGame() {
-    resetGameToZero();
-    changeMinesCount();
-    clearStopwatch();
-    startGame();
-}
-
-function resetGameToZero() {
-    board = [];
-    minesLocation = [];
-    tilesClicked = 0;
-    numOfMoves = 0;
-    
-    flagEnabled = false;
-    gameOver = false;
-
-    flagButton.classList.remove('active-button');
-    
-    movesCounter.textContent = 0;
-    gameField.replaceChildren();
+function disableTiles() {
+    for(const row of board) {
+        for(const tile of row){
+            tile.style.pointerEvents = 'none';
+        }
+    }
 }
 
 function createRadioElement(object, name) {
@@ -508,14 +488,6 @@ function changeMinesCount() {
         inputMines.value = 10;
     } else {
         localStorage.setItem('countOfMines', inputMines.value);
-    }
-}
-
-function disableTiles() {
-    for(const row of board) {
-        for(const tile of row){
-            tile.style.pointerEvents = 'none';
-        }
     }
 }
 
@@ -550,116 +522,10 @@ function addButtonAnimation() {
     }
 }
 
-function updateBestResults(mines, moves, time) {
-    const newNote = createNote(mines, moves, time);
-    const array = receiveBestResults();
-    if(array.length < 10) {
-        array.push(newNote);
-        array.sort(sortArray);
-        localStorage.setItem('bestResults', JSON.stringify(array));
-        return;
-    }
-    const hasWorseResult = array.some(element => countSeconds(element.time) > countSeconds(newNote.time));
-    if(hasWorseResult) {
-        array.pop();
-        array.push(newNote);
-        array.sort(sortArray);
-        localStorage.setItem('bestResults', JSON.stringify(array));
-    }
-    return;
-}
-
-function createNote(mines, moves, time) {
-    return {
-        time: time,
-        moves: moves,
-        mines: mines,
-    };
-}
-
-function sortArray(a, b) {
-    const timeA = countSeconds(a.time);
-    const timeB = countSeconds(b.time);
-    if (timeA < timeB) {
-        return -1;
-    }
-    if (timeA > timeB) {
-        return 1;
-    }
-    return 0;
-}
-
-function countSeconds(time) {
-    const [minutes, seconds] = time.split(':');
-    const result = minutes * 60 + (+seconds);
-    return result; 
-}
-
-function receiveBestResults() {
-    let bestResults;
-    if(localStorage.getItem('bestResults') !== '') {
-        bestResults = localStorage.getItem('bestResults');
-    } else {
-        bestResults = '[]';
-    }
-    return JSON.parse(bestResults);
-}
-
-function createListOfResults() {
-    listOfResults.replaceChildren();
-    const resultsArray = receiveBestResults();
-    resultsArray.forEach((element) => {
-        const content = `Time: ${element.time}, moves: ${element.moves}, mines: ${element.mines}`;
-        const item = document.createElement('li');
-        item.className = 'results-item';
-        item.textContent = content;
-        listOfResults.insertAdjacentElement('beforeend', item); 
-    });
-    return;
-}
-
 function displayResults() {
+    createListOfResults(listOfResults, headerOfResults);
     modalForResults.classList.remove("hidden");
     modalOverlay.classList.remove("hidden");
-    return;
-}
-
-function startStopwatch() {
-    clearInterval(interval);
-    interval = setInterval(startTimer, 1000);
-    return;
-}
-
-function stopStopwatch() {
-    clearInterval(interval);
-    return;
-}
-
-function clearStopwatch() {
-    stopStopwatch();
-    timerSec.textContent = '00';
-    timerMin.textContent = '00';
-    return;
-}
-
-function startTimer() {
-    let seconds = +timerSec.textContent;
-    let minutes = +timerMin.textContent;
-    if(seconds < 9) {
-        seconds = '0' + (seconds + 1); 
-    } else if(+seconds >= 9) {
-        seconds = (seconds + 1); 
-    }
-    if(seconds > 59) {
-        if(minutes < 9) {
-            minutes = '0' + (minutes + 1).toString(); 
-        } else {
-            minutes = minutes++;
-        }
-        timerMin.textContent = minutes;
-        seconds = '00';
-    }
-    timerSec.textContent = seconds;
     return;
 }
 
