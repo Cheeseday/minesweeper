@@ -2,7 +2,7 @@
 
 ### [Here you can see implementation](https://cheeseday.github.io/minesweeper/src/index.html)
 
-### View in the light version
+### View in the light version:
 
 <kbd>![screenshot](assets/completed_game.png)</kbd>
 
@@ -44,6 +44,6 @@ or
 - dark/light themes of the game;
 - hovering and animated styles for clickable elements.
 
-### View in the dark version
+### View in the dark version:
 
 <kbd>![screenshot](assets/dark_theme_view.png)</kbd>
